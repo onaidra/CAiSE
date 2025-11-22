@@ -297,27 +297,21 @@ List supported model types and architectures.
 **Response:**
 ```json
 {
-  "llm": ["bert", "gpt2", "t5", "roberta", "electra"],
-  "cnn": ["resnet", "vgg", "efficientnet", "mobilenet", "densenet"]
+  "llm": ["LLAMA", "MISTRAL", "QWEN"],
+  "cnn": ["VGG16", "VGG19", "AlexNet", "Convolutional Autoencoder", "Linear AutoEncoder"]
 }
 ```
 
 ## Supported Tasks
 
 ### LLM Tasks (SiRE)
-- `text-classification`
-- `token-classification`
 - `question-answering`
 - `text-generation`
-- `summarization`
-- `translation`
-- `fill-mask`
 
 ### CNN Tasks (ImproveNet)
 - `image-classification`
 - `object-detection`
-- `semantic-segmentation`
-- `instance-segmentation`
+- `signal reconstruction`
 
 ## Pruning Engines
 
@@ -351,27 +345,11 @@ cloud-edge-pruning-framework/
 ├── cloud_service/
 │   ├── app.py
 │   ├── dispatcher.py                 # Model type detection and routing
-│   ├── engines/
-│   │   ├── sire/                     # LLM pruning engine
-│   │   │   ├── pruning_analyzer.py
-│   │   │   ├── importance_scorer.py
-│   │   │   └── head_pruner.py
-│   │   └── improvenet/               # CNN pruning engine
-│   │       ├── filter_pruner.py
-│   │       ├── channel_pruner.py
-│   │       └── importance_scorer.py
 │   └── utils.py
 ├── edge_client/
 │   ├── client.py
 │   ├── pruning_utils.py
 │   └── model_handler.py
-├── configs/
-│   ├── sire_config.yaml
-│   └── improvenet_config.yaml
-├── tests/
-│   ├── test_dispatcher.py
-│   ├── test_sire.py
-│   └── test_improvenet.py
 ├── examples/
 │   ├── prune_llm.py
 │   └── prune_cnn.py
@@ -379,145 +357,6 @@ cloud-edge-pruning-framework/
 ├── setup.py
 └── README.md
 ```
-
-## Configuration
-
-Create separate configuration files for each engine:
-
-**sire_config.yaml** (LLM pruning):
-```yaml
-pruning:
-  default_ratio: 0.2
-  methods:
-    - magnitude
-    - gradient
-  min_heads_per_layer: 2
-  min_neurons_per_layer: 128
-  
-importance_metric: "taylor"
-calibration_samples: 128
-```
-
-**improvenet_config.yaml** (CNN pruning):
-```yaml
-pruning:
-  default_ratio: 0.25
-  methods:
-    - l1_norm
-    - geometric_median
-  skip_layers:
-    - first_conv
-    - last_fc
-    
-filter_selection: "global"
-fine_tuning_epochs: 10
-```
-
-## Performance
-
-### LLM Pruning Results (SiRE)
-
-| Model | Original Size | Pruned Size | Accuracy Drop | Speedup |
-|-------|--------------|-------------|---------------|---------|
-| BERT-base | 110M params | 88M params | <1% | 1.3x |
-| RoBERTa-base | 125M params | 95M params | <1.5% | 1.4x |
-| GPT-2 small | 117M params | 90M params | <2% | 1.35x |
-
-### CNN Pruning Results (ImproveNet)
-
-| Model | Original Size | Pruned Size | Accuracy Drop | Speedup |
-|-------|--------------|-------------|---------------|---------|
-| ResNet-50 | 25.5M params | 19.5M params | <0.5% | 1.6x |
-| MobileNetV2 | 3.5M params | 2.4M params | <1% | 1.8x |
-| EfficientNet-B0 | 5.3M params | 3.9M params | <0.8% | 1.5x |
-
-## Examples
-
-### Example 1: Pruning an LLM
-```python
-from edge_client import PruningClient
-
-client = PruningClient(cloud_url="http://localhost:8000")
-
-# Request pruning for BERT
-config = client.get_pruning_config(
-    model_name="bert-base-uncased",
-    task="text-classification",
-    pruning_ratio=0.2
-)
-
-print(f"Model routed to: {config['pruning_engine']}")  # Output: SiRE
-
-# Apply pruning
-pruned_model = client.apply_pruning(config)
-```
-
-### Example 2: Pruning a CNN
-```python
-from edge_client import PruningClient
-
-client = PruningClient(cloud_url="http://localhost:8000")
-
-# Request pruning for ResNet
-config = client.get_pruning_config(
-    model_name="resnet50",
-    task="image-classification",
-    pruning_ratio=0.25
-)
-
-print(f"Model routed to: {config['pruning_engine']}")  # Output: ImproveNet
-
-# Apply pruning
-pruned_model = client.apply_pruning(config)
-```
-
-### Example 3: Batch Pruning
-```python
-from edge_client import PruningClient
-
-client = PruningClient(cloud_url="http://localhost:8000")
-
-models = [
-    {"name": "bert-base-uncased", "task": "text-classification"},
-    {"name": "resnet50", "task": "image-classification"},
-    {"name": "gpt2", "task": "text-generation"}
-]
-
-for model_info in models:
-    config = client.get_pruning_config(
-        model_name=model_info["name"],
-        task=model_info["task"]
-    )
-    print(f"{model_info['name']} → {config['pruning_engine']}")
-```
-
-## Testing
-```bash
-# Run all tests
-pytest tests/
-
-# Test dispatcher
-pytest tests/test_dispatcher.py
-
-# Test SiRE engine
-pytest tests/test_sire.py
-
-# Test ImproveNet engine
-pytest tests/test_improvenet.py
-
-# Run with coverage
-pytest --cov=cloud_service tests/
-```
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 
@@ -530,15 +369,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - PyTorch and torchvision frameworks
 - SiRE pruning methodology for LLMs
 - ImproveNet pruning methodology for CNNs
-
-## Contact
-
-For questions or support, please open an issue on GitHub or contact [your-email@example.com](mailto:your-email@example.com).
-
-## Roadmap
-
-- [ ] Support for LLMs in dispatcher
-- [ ] Dynamic pruning 
-- [ ] Multi-GPU support for cloud service
-- [ ] Web-based dashboard for monitoring
-- [ ] Integration with ONNX export
