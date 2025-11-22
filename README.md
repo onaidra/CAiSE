@@ -12,8 +12,8 @@ This framework implements a cloud-edge architecture that enables the optimizatio
 │   Client    │────────>│       Cloud Service          │
 │   (Edge)    │<────────│                              │
 └─────────────┘         │  ┌────────────────────────┐  │
-     │                  │  │     Dispatcher         │  │
-     │                  │  │  (Model Detection)     │  │
+     │                  │  │       Dispatcher       │  │
+     │                  │  │    (Model Detection)   │  │
      │                  │  └──────────┬─────────────┘  │
      │                  │             │                │
      │                  │      ┌──────┴──────┐         │
@@ -23,7 +23,7 @@ This framework implements a cloud-edge architecture that enables the optimizatio
      │                  │  │ (LLM) │    │  (CNN)   │   │
      │                  │  └───────┘    └──────────┘   │
      │                  │                              │
-     │                  │  JSON Export                 │
+     │                  │         JSON Export          │
      │                  └──────────────────────────────┘
      │
      └─ Apply Pruning Config
