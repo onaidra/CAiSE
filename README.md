@@ -18,7 +18,7 @@ This framework implements a cloud-edge architecture that enables the optimizatio
      │                  │             │                │
      │                  │      ┌──────┴──────┐         │
      │                  │      │             │         │
-     │                  │  ┌───▼───┐    ┌───▼──────┐   │
+     │                  │  ┌───▼───┐    ┌────▼─────┐   │
      │                  │  │  SiRE │    │ImproveNet│   │
      │                  │  │ (LLM) │    │  (CNN)   │   │
      │                  │  └───────┘    └──────────┘   │
